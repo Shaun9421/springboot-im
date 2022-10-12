@@ -1,0 +1,136 @@
+<template>
+    <view>
+		<video id="myVideo" :src="src"
+		 @error="videoErrorCallback" 
+		 autoplay="true"
+		 object-fit="cover"
+		 :style="{width:wid,height:hei}" :danmu-list="danmuList" enable-danmu danmu-btn controls></video>
+        
+		<live-pusher id='livePusher' ref="livePusher" class="livePusher" :url="url"
+        mode="FHD" 
+		:muted="false" :enable-camera="true" :auto-focus="true" :beauty="1" whiteness="2"
+        aspect="9:16" @statechange="statechange" @netstatus="netstatus" @error = "error"></live-pusher>
+    </view>
+</template>
+
+
+
+<script>
+    export default {
+        data() {
+			return {
+				src:"",
+				url:"",
+				wid:0,
+				hei:0,
+			}
+        },
+		onLoad(e) {
+			//url推自己的流
+			//src 那对方的流
+			let user = e.user;
+			let to   = e.to;
+			this.url = "rtmp://101.42.135.49:1935/live/"+user;
+			this.src = "rtmp://101.42.135.49:1935/live/"+to;
+			let getWindowInfo = uni.getWindowInfo();
+			this.hei = getWindowInfo.screenHeight;
+			this.wid = getWindowInfo.screenWidth;
+		
+		},
+        onReady() {
+            // 注意：需要在onReady中 或 onLoad 延时
+            this.context = uni.createLivePusherContext("livePusher", this);
+			this.start();
+		},
+        methods: {
+            statechange(e) {
+                console.log("statechange:" + JSON.stringify(e));
+            },
+            netstatus(e) {
+                console.log("netstatus:" + JSON.stringify(e));
+            },
+            error(e) {
+                console.log("error:" + JSON.stringify(e));
+            },
+            start: function() {
+                this.context.start({
+                    success: (a) => {
+                        console.log("livePusher.start:" + JSON.stringify(a));
+                    }
+                });
+            },
+            close: function() {
+                this.context.close({
+                    success: (a) => {
+                        console.log("livePusher.close:" + JSON.stringify(a));
+                    }
+                });
+            },
+            snapshot: function() {
+                this.context.snapshot({
+                    success: (e) => {
+                        console.log(JSON.stringify(e));
+                    }
+                });
+            },
+            resume: function() {
+                this.context.resume({
+                    success: (a) => {
+                        console.log("livePusher.resume:" + JSON.stringify(a));
+                    }
+                });
+            },
+            pause: function() {
+                this.context.pause({
+                    success: (a) => {
+                        console.log("livePusher.pause:" + JSON.stringify(a));
+                    }
+                });
+            },
+            stop: function() {
+                this.context.stop({
+                    success: (a) => {
+                        console.log(JSON.stringify(a));
+                    }
+                });
+            },
+            switchCamera: function() {
+                this.context.switchCamera({
+                    success: (a) => {
+                        console.log("livePusher.switchCamera:" + JSON.stringify(a));
+                    }
+                });
+            },
+            startPreview: function() {
+                this.context.startPreview({
+                    success: (a) => {
+                        console.log("livePusher.startPreview:" + JSON.stringify(a));
+                    }
+                });
+            },
+            stopPreview: function() {
+                this.context.stopPreview({
+                    success: (a) => {
+                        console.log("livePusher.stopPreview:" + JSON.stringify(a));
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+
+<style>
+	.vid{
+		width: 1000rpx;
+		height: 1000rpx;
+	}
+	.livePusher{
+		position: fixed;
+		top: 5px;
+		right: 10px;
+		width: 200rpx;
+		height: 360rpx;
+	}
+</style>
+
